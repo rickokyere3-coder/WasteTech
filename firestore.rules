@@ -1,0 +1,31 @@
+rules_version = '2';
+// Who can read and write what in WasteTech's database.
+// Deploy with: firebase deploy --only firestore:rules
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isMe(id)   { return signedIn() && request.auth.uid == id; }
+    function isAdmin()  { return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+
+    // Admins: added by hand in the Firebase console. Nobody can make themselves admin from the app.
+    match /admins/{id}       { allow read: if isMe(id); allow write: if false; }
+
+    // Each person's account profile (username, created, last login).
+    match /users/{id}        { allow read, write: if isMe(id) || isAdmin(); }
+
+    // Collector applications: each applicant reads and writes their own; admins see and review all.
+    match /applications/{id} { allow read, write: if isMe(id) || isAdmin(); }
+
+    // Approved collectors: every logged-in customer can see them; only admins approve or remove.
+    match /collectors/{id}   { allow read: if signedIn(); allow write: if isAdmin(); }
+
+    // Collector mode check-ins: everyone logged in sees where online collectors are; each collector writes their own.
+    match /positions/{id}    { allow read: if signedIn(); allow write: if isMe(id) || isAdmin(); }
+
+    // Pickup history: each customer reads and writes their own; admins read all for the daily chart.
+    match /pickups/{id}      { allow read, write: if isMe(id) || isAdmin(); }
+
+    // Private per-person settings (saved MoMo number). Only that person.
+    match /data/users/{id}/{rest=**} { allow read, write: if isMe(id); }
+  }
+}

@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>WasteTech</title>
+<meta name="description" content="Book waste pickups from homes, hostels and shops around Sunyani, Fiapre, Abesim and Odumase.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Crect width='22' height='22' rx='5' fill='%23F08A24'/%3E%3Crect x='4' y='5' width='14' height='2.6' rx='1' fill='%232A1300'/%3E%3Crect x='8.7' y='3' width='4.6' height='2.2' rx='1' fill='%232A1300'/%3E%3Cpath d='M5.4 8.8h11.2l-1.1 9.4a1.4 1.4 0 0 1-1.4 1.2H7.9a1.4 1.4 0 0 1-1.4-1.2z' fill='%232A1300'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="logo">
+      <div class="logo-mark" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 22 22"><rect class="ink" x="3" y="4" width="16" height="3" rx="1.2"/><rect class="ink" x="8.5" y="1.5" width="5" height="2.5" rx="1"/><path class="ink" d="M4.6 8.5h12.8l-1.3 11a1.6 1.6 0 0 1-1.6 1.4H7.5a1.6 1.6 0 0 1-1.6-1.4z"/></svg>
+      </div>
+      <div><h1>WasteTech</h1><small>Waste pickup for Sunyani, Fiapre, Abesim &amp; Odumase</small></div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button type="button" class="on" role="tab" aria-selected="true" data-view="pickup">Request pickup</button>
+      <button type="button" role="tab" aria-selected="false" data-view="history">My pickups</button>
+      <button type="button" role="tab" aria-selected="false" data-view="register">Become a collector</button>
+      <button type="button" role="tab" aria-selected="false" data-view="collector" id="tabCollector" hidden>Collector mode</button>
+      <button type="button" role="tab" aria-selected="false" data-view="admin" id="tabAdmin" hidden>Admin</button>
+    </nav>
+    <div class="pill" id="pill"><i></i><span id="pillText">Collectors nearby</span></div>
+    <span class="demo">Demo · simulated collectors</span>
+  </header>
+
+  <main class="main" id="pickupView">
+    <section class="mapwrap" aria-label="Map of Sunyani">
+      <svg id="map" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Schematic map of Sunyani and nearby towns"></svg>
+      <div class="maphint">
+        <span><b style="background:var(--brand)"></b>Pickup</span>
+        <span><b style="background:var(--leaf);border-radius:2px"></b>Disposal &amp; recycling</span>
+        <span><b style="background:var(--accent)"></b>Collector</span>
+        <span>Tap the place where your waste is · not to scale</span>
+      </div>
+    </section>
+
+    <aside class="side" aria-label="Pickup assistant">
+      <figure class="hero" id="hero">
+        <svg class="hero-art" viewBox="190 0 230 150" aria-hidden="true">
+          <circle cx="388" cy="30" r="16" class="h-sun"/>
+          <rect x="190" y="120" width="230" height="30" class="h-ground"/>
+          <g transform="translate(214,46)">
+            <rect x="62" y="24" width="120" height="48" rx="4" class="h-box"/>
+            <path d="M70 36h104M70 50h104" class="h-line"/>
+            <rect x="72" y="4" width="28" height="22" rx="3" class="h-bin"/><rect x="70" y="1" width="32" height="5" rx="2" class="h-lid"/>
+            <rect x="108" y="0" width="28" height="26" rx="3" class="h-bin2"/><rect x="106" y="-3" width="32" height="5" rx="2" class="h-lid"/>
+            <rect x="144" y="6" width="28" height="20" rx="3" class="h-bin"/><rect x="142" y="3" width="32" height="5" rx="2" class="h-lid"/>
+            <path d="M8 72V36q0-16 18-16h24l12 22v30z" class="h-cab"/>
+            <path d="M16 42v-10q0-6 7-6h22l9 16z" class="h-win"/>
+            <circle cx="28" cy="74" r="13" class="h-wheel"/><circle cx="28" cy="74" r="4" class="h-hub"/>
+            <circle cx="150" cy="74" r="13" class="h-wheel"/><circle cx="150" cy="74" r="4" class="h-hub"/>
+          </g>
+        </svg>
+        <p id="heroText">Rubbish picked up from your door<span>Homes and hostels across Sunyani</span></p>
+      </figure>
+      <div class="side-head"><div class="ava">E</div><div><b>Efua</b><span>Your pickup assistant · English &amp; a little Twi</span></div></div>
+      <div class="cat" role="radiogroup" aria-label="Customer type">
+        <button type="button" id="catHome" class="on" role="radio" aria-checked="true" data-cat="home">Home &amp; hostel<span>10% off every pickup</span></button>
+        <button type="button" id="catBusiness" role="radio" aria-checked="false" data-cat="business">Shop &amp; business<span>Standard rate · receipts</span></button>
+      </div>
+      <div id="trip" class="trip" hidden></div>
+      <div id="log" class="log" aria-live="polite"></div>
+      <div id="chips" class="chips"></div>
+      <form id="composer" class="composer" autocomplete="off">
+        <input id="msg" maxlength="300" placeholder="e.g. Collect 2 bags from Penkwase" aria-label="Message Efua">
+        <button type="submit">Send</button>
+      </form>
+    </aside>
+  </main>
+
+  <main class="view" id="histView" hidden>
+    <div class="view-inner single">
+      <section class="card">
+        <div class="adm-head"><h2>My pickups</h2><span id="tripCount"></span></div>
+        <div class="tiles" id="tripTiles"></div>
+        <div class="trip-filters">
+          <input id="tripSearch" type="search" placeholder="Search a place, date or MoMo reference" aria-label="Search pickups">
+          <select id="tripPay" aria-label="Payment">
+            <option value="">All payments</option><option value="paid">Paid by MoMo</option><option value="cash">Cash</option>
+            <option value="awaiting">MoMo not completed</option><option value="failed">MoMo failed</option>
+          </select>
+          <select id="tripKind" aria-label="Waste type">
+            <option value="">All waste</option><option value="general">General waste</option><option value="recycle">Recyclables</option>
+          </select>
+        </div>
+        <div id="tripList"></div>
+      </section>
+    </div>
+  </main>
+
+  <main class="view" id="regView" hidden>
+    <div class="view-inner">
+      <section class="card">
+        <h2>Register as a WasteTech collector</h2>
+        <p class="lede">Collect waste with an aboboyaa or motor tricycle in Sunyani? Join WasteTech to get pickup requests from homes, hostels and shops. We review every application and meet you in person to check your Ghana Card, licence and tricycle before you go live.</p>
+        <div id="regNotice" class="notice" hidden></div>
+        <form id="regForm" novalidate>
+          <div class="fields">
+            <div class="field full">
+              <span class="flabel">Passport photo</span>
+              <div class="photo-row">
+                <div class="photo-box" id="rPhotoBox"><span>No photo yet</span></div>
+                <div class="photo-help">
+                  <label for="rPhoto" class="filebtn">Choose photo</label>
+                  <input id="rPhoto" type="file" accept="image/*" class="vh">
+                  <small>A clear, recent photo of your face on a plain background. Customers see it so they know who is collecting.</small>
+                </div>
+              </div>
+            </div>
+            <div class="field full"><label for="rName">Full name</label><input id="rName" autocomplete="name" maxlength="80" placeholder="e.g. Yaw Mensah"></div>
+            <div class="field"><label for="rPhone">Phone number</label><input id="rPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="024 123 4567"><small>Customers see this number during a pickup.</small></div>
+            <div class="field"><label for="rPlate">Tricycle plate number</label><input id="rPlate" maxlength="20" placeholder="M-24-BA 1234" style="text-transform:uppercase"></div>
+            <div class="field"><label for="rBase">Where you usually start</label><select id="rBase"></select></div>
+            <div class="field"><label for="rYears">Years collecting waste</label>
+              <select id="rYears"><option value="0">Less than 1 year</option><option value="1" selected>1–3 years</option><option value="3">3–5 years</option><option value="5">More than 5 years</option></select></div>
+            <fieldset class="field full"><legend>Waste you will collect</legend>
+              <div class="checks">
+                <label class="check pillcheck"><input type="checkbox" id="rGeneral" checked>General waste</label>
+                <label class="check pillcheck"><input type="checkbox" id="rRecycle" checked>Sorted recyclables</label>
+              </div></fieldset>
+            <div class="field full confirms">
+              <label class="check"><input type="checkbox" id="rLicence">I hold a valid licence for my tricycle.</label>
+              <label class="check"><input type="checkbox" id="rCard">I will bring my Ghana Card and licence to the verification meeting.</label>
+              <label class="check"><input type="checkbox" id="rConduct">I agree to the collector code: empty loads only at the disposal site or recycling point, never in gutters, streams or bush; cover my load; wear gloves and boots; and treat every customer with respect.</label>
+            </div>
+          </div>
+          <button class="cta" type="submit" id="regSubmit">Submit application</button>
+          <p id="regMsg" class="formmsg" role="status"></p>
+        </form>
+      </section>
+      <aside class="card" id="myApp"></aside>
+    </div>
+  </main>
+
+  <main class="view" id="colView" hidden>
+    <div class="view-inner">
+      <section class="card">
+        <h2>Collector mode</h2>
+        <p class="lede">Go online when you are ready for pickups, and update your location each time you move to a new place. Customers are matched with the nearest online collector.</p>
+        <div class="online-row"><span class="status" id="rmStatus">Offline</span><button type="button" class="cta" id="rmToggle">Go online</button></div>
+        <div class="field"><label for="rmPlace">Where are you now?</label><select id="rmPlace"></select></div>
+        <button type="button" class="again rm-update" id="rmUpdate">Update my location</button>
+        <p class="formmsg" id="rmMsg" role="status"></p>
+      </section>
+      <aside class="card"><h3>Your movements today</h3><div id="rmTrail"></div></aside>
+    </div>
+  </main>
+
+  <main class="view" id="adminView" hidden>
+    <div class="view-inner single">
+      <section class="card">
+        <div class="adm-head"><h2>Collector tracking</h2><span id="trkCount"></span></div>
+        <p class="lede">Where each collector was last seen, from their Collector mode check-ins and the pickups they made. Pick a collector to see their route for the day, including where each load was emptied.</p>
+        <div class="trip-filters"><select id="trkDay" aria-label="Day"></select></div>
+        <div class="trk-grid">
+          <div class="trk-map"><svg id="trkMap" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Map of where each collector was last seen"></svg></div>
+          <div id="trkList" class="trk-list"></div>
+        </div>
+        <h3 id="trkTitle" class="trk-title"></h3>
+        <div id="trkTimeline"></div>
+      </section>
+      <section class="card">
+        <div class="adm-head"><h2>Pickups per day</h2><span>Last 14 days · all customers</span></div>
+        <div id="pickStats"><p class="muted">Loading pickups…</p></div>
+      </section>
+      <section class="card">
+        <div class="adm-head"><h2>Collector applications</h2><span id="appCount"></span></div>
+        <p class="lede">Approve a collector after you have checked their Ghana Card, licence and tricycle in person. Approved collectors get a Collector mode tab and are matched with customers while they are online. The demo collectors are used only when no approved collector is online.</p>
+        <p id="admMsg" class="formmsg err" role="status"></p>
+        <div id="appList"></div>
+      </section>
+    </div>
+  </main>
+</div>
+<script>
+/* Bridge between the app and Firebase: js/firebase.js resolves this once someone has logged in. */
+(function(){
+  var ready = new Promise(function(res){ window.__backendReady = res; });
+  window.backend = { use: function(name){ return ready.then(function(api){ return api[name] || null; }); } };
+})();
+</script>
+<script src="js/app.js"></script>
+<script src="js/phone.js"></script>
+<script type="module" src="js/firebase.js"></script>
+</body>
+</html>
